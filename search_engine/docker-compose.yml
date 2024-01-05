@@ -1,0 +1,63 @@
+version: "3.6"
+services:
+  search_engine:
+    container_name: search_engine
+    build: .
+    ports:
+      - 5007:5007
+    environment:
+      - FLASK_PORT=5007
+      - FLASK_HOST=0.0.0.0
+      - PUBLIC_FLASK_PORT=5007
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    volumes:
+      - .:/search_engine
+    links:
+      - elasticsearch
+    depends_on:
+      - elasticsearch
+    networks:
+      - esnet
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.3
+    container_name: elasticsearch
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    environment:
+      - xpack.security.enabled= false
+      - xpack.security.enrollment.enabled= false
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - esnet
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.10.3
+    container_name: kibana
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_URL=https://elasticsearch:9200
+    links:
+      - elasticsearch
+    depends_on:
+      - elasticsearch
+    networks:
+      - esnet
+
+volumes:
+  esdata:
+
+  exclude:
+
+networks:
+  esnet:
+    driver: bridge

@@ -1,0 +1,11 @@
+langchain==0.0.350
+streamlit-chat
+transformers
+torch
+python-dotenv
+accelerate
+underthesea
+sentence-transformers
+boto3
+requests
+streamlit-feedback
